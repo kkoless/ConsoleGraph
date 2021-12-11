@@ -15,7 +15,7 @@ namespace GraphProject
         public int getVerticesCount() => vertices.Count;
         public int getEdgesCount() => edges.Count;
 
-        public float[,] getMatrix()
+        private float[,] getMatrix()
         {
             var matrix = new float[vertices.Count, vertices.Count];
 
@@ -81,34 +81,25 @@ namespace GraphProject
             }
         }
 
-        public List<Vertex> getVerticesList() { return this.vertices; }
-        public List<Edge> getEdgeList() { return this.edges; }
-
         public void addVertex(Vertex newVertex) { checkVerticesContains(newVertex); }
 
         public void addEdge(Vertex startVertex, Vertex endVertex, double weight = 1)
         {
             Vertex firstVert = startVertex, secondVert = endVertex;
-            //try
-            //{
-            //    firstVert = this.vertices.Find(x => x.getId() == startVertex.getId());
-            //    secondVert = this.vertices.Find(x => x.getId() == endVertex.getId());
-            //}
-            //catch { }
+            var vertIds = this.vertices.Select(x => x.getId());
 
-            //Console.WriteLine(firstVert.ToString());
-            //Console.WriteLine(secondVert.ToString());
+            if (vertIds.Contains(firstVert.getId()) && vertIds.Contains(secondVert.getId()))
+            {
+                firstVert = this.vertices.Find(x => x.getId() == firstVert.getId());
+                secondVert = this.vertices.Find(x => x.getId() == secondVert.getId());
+            }
 
             Edge newEdge = new Edge(firstVert, secondVert, (float)weight);
             Edge editEdge = checkEdgesContaints(firstVert, secondVert).First();
             Edge revertEdge = checkEdgesContaints(firstVert, secondVert).Last();
 
             if (!this.edges.Contains(revertEdge) && !this.edges.Contains(editEdge) || (revertEdge != null && editEdge != null))
-            {
                 this.edges.Add(newEdge);
-                firstVert.addAdjacentVertex(secondVert);
-                secondVert.addAdjacentVertex(firstVert);
-            }
         }
 
         public void removeEdge(Edge removeEdge)
@@ -256,7 +247,6 @@ namespace GraphProject
             return flagVert;
         }
 
-
         //------------------------------------------------------------------
 
         // В виде матрицы смежности
@@ -277,7 +267,6 @@ namespace GraphProject
         static private void configureGraphOfOfAdjacencyMatrix(string[] dataFromFile, Graph editGraph)
         {
             var matrix = new string[dataFromFile.Length - 1, dataFromFile.Length - 1];
-            float weight = 0;
 
             for (int row = 0; row < dataFromFile.Length - 1; row++)
             {
@@ -285,7 +274,7 @@ namespace GraphProject
                 for (int column = 0; column < dataFromFile.Length - 1; column++)
                 {
                     Vertex secondVert = new Vertex(column + 1);
-                    weight = float.Parse(dataFromFile[row + 1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[column]);
+                    float weight = float.Parse(dataFromFile[row + 1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[column]);
                     matrix[row, column] = weight.ToString();
                     if (weight != 0)
                     {
@@ -311,9 +300,11 @@ namespace GraphProject
                                 matrix[i, j] = matrix[i, k] + matrix[k, j];
         }
 
-        public float getDiametr(float[,] matrix, int matrixSize)
+        public float getDiametr()
         {
             float diametr = 0;
+            var matrixSize = getVerticesCount();
+            var matrix = getMatrix();
             float[] e = new float[matrixSize];
 
             floyd(matrix, matrixSize);
@@ -336,9 +327,8 @@ namespace GraphProject
             for (int row = 0; row < getVerticesCount(); row++)
             {
                 for (int column = 0; column < getVerticesCount(); column++)
-                {
                     Console.Write(matrix[row, column] + "\t");
-                }
+
                 Console.WriteLine();
             }
         }

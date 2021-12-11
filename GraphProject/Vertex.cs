@@ -21,8 +21,6 @@ namespace GraphProject
 
         public int getId() { return id; }
 
-        public List<Vertex> getAdjacentVerticesList() { return this.adjacentVertices; }
-
         public void addAdjacentVertex(Vertex newVertex)
         {
             if (!checkAdjectVertex(newVertex))
@@ -31,7 +29,7 @@ namespace GraphProject
 
         public void removeAdjacentVertex(Vertex removeAdjVertex)
         {
-            if (adjacentVertices.Contains(removeAdjVertex))
+            if (checkAdjectVertex(removeAdjVertex))
                 adjacentVertices.Remove(removeAdjVertex);
         }
 

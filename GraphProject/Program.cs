@@ -176,7 +176,7 @@ namespace GraphProject
                     case 10:
                         Console.Clear();
                         Console.WriteLine("---------------");
-                        Console.WriteLine($"Диаметр: {initGraph.getDiametr(initGraph.getMatrix(), initGraph.getVerticesCount())}");
+                        Console.WriteLine($"Диаметр: {initGraph.getDiametr()}");
                         break;
 
                     case 11:

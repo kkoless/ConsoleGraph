@@ -12,17 +12,8 @@ namespace GraphProject
             this.weight = (float)weight;
             this.startVertex = startVertex;
             this.endVertex = endVertex;
-        }
 
-        public void setStartVertex(Vertex startVertex)
-        {
-            this.startVertex = startVertex;
-            this.startVertex.addAdjacentVertex(this.endVertex);
-        }
-        public void setEndVertex(Vertex endVertex)
-        {
-            this.endVertex.addAdjacentVertex(this.startVertex);
-            this.endVertex = endVertex;
+            addAdjacentVertex();
         }
 
         public void setWeight(float newWeight) { this.weight = newWeight; }
@@ -31,13 +22,13 @@ namespace GraphProject
         public Vertex getStartVertex() { return startVertex; }
         public Vertex getEndVertex() { return endVertex; }
 
-        //private void addAdjacentVertex()
-        //{
-        //    this.startVertex.addAdjacentVertex(this.endVertex);
-        //    this.endVertex.addAdjacentVertex(this.startVertex);
-        //}
+        private void addAdjacentVertex()
+        {
+            this.startVertex.addAdjacentVertex(this.endVertex);
+            this.endVertex.addAdjacentVertex(this.startVertex);
+        }
 
-        public override string ToString() { return $"({startVertex}); ({endVertex})"; }
+        public override string ToString() { return $"({startVertex.ToString()}); ({endVertex.ToString()})"; }
     }
 }
 
