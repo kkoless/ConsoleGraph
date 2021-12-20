@@ -11,10 +11,11 @@ namespace GraphProject
         static void Main(string[] args)
         {
             Graph initGraph = new Graph();
-            int userInput, choose;
-            string path, fileName;
+            int userInput = 20, choose = 20, tmp = 0;
+            string fileName;
             float weight;
-            int[] verticesIds, verticesIdsForEdge;
+            int[] verticesIds = Array.Empty<int>(), verticesIdsForEdge = Array.Empty<int>();
+            string[] verticesIdsStr = Array.Empty<string>();
 
             string text =
                 "0 - Выйти\n" +
@@ -28,7 +29,8 @@ namespace GraphProject
                 "8 - Проверить смежность двух вершин\n" +
                 "9 - Узнать вес ребра\n" +
                 "10 - Определить диаметр графа\n" +
-                "11 - Узнать пустой граф или нет";
+                "11 - Узнать пустой граф или нет\n" +
+                "12 - Создать пустой граф";
 
             do
             {
@@ -38,8 +40,12 @@ namespace GraphProject
                 Console.WriteLine(text);
                 Console.WriteLine("---------------");
                 Console.Write("Введите число: ");
-                userInput = Convert.ToInt32(Console.ReadLine());
-
+                try { userInput = Convert.ToInt32(Console.ReadLine()); }
+                catch {
+                    Console.Clear();
+                    Console.WriteLine("Некорректный ввод, повторите попытку");
+                }
+                    
                 switch (userInput)
                 {
                     case 1:
@@ -51,23 +57,28 @@ namespace GraphProject
                             );
                         Console.WriteLine("---------------");
                         Console.Write("Введите число: ");
-                        choose = Convert.ToInt32(Console.ReadLine());
+                        try { choose = Convert.ToInt32(Console.ReadLine()); }
+                        catch
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Некорректный ввод, повторите попытку");
+                        }
                         Console.WriteLine("---------------");
                         switch (choose)
                         {
                             case 0:
                                 Console.Clear();
-                                Console.Write("Укажите путь до файла: ");
-                                path = Console.ReadLine();
+                                Console.Write("Укажите название файла: ");
+                                fileName = Console.ReadLine();
                                 Console.WriteLine("---------------");
-                                initGraph = Graph.loadGraphFromFileOfAdjacencyMatrix(path);
+                                initGraph = Graph.loadGraphFromFileOfAdjacencyMatrix(fileName);
                                 break;
                             case 1:
                                 Console.Clear();
-                                Console.Write("Укажите путь до файла: ");
-                                path = Console.ReadLine();
+                                Console.Write("Укажите название файла: ");
+                                fileName = Console.ReadLine();
                                 Console.WriteLine("---------------");
-                                initGraph = Graph.loadGraphFromFileOfEdgeList(path);
+                                initGraph = Graph.loadGraphFromFileOfEdgeList(fileName);
                                 break;
                         }
                         break;
@@ -81,27 +92,28 @@ namespace GraphProject
                             );
                         Console.WriteLine("---------------");
                         Console.Write("Введите число: ");
-                        choose = Convert.ToInt32(Console.ReadLine());
+                        try { choose = Convert.ToInt32(Console.ReadLine()); }
+                        catch
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Некорректный ввод, повторите попытку");
+                        }
                         Console.WriteLine("---------------");
                         switch (choose)
                         {
                             case 0:
                                 Console.Clear();
-                                Console.Write("Укажите путь до файла: ");
-                                path = Console.ReadLine();
                                 Console.WriteLine("Укажите название файла: ");
                                 fileName = Console.ReadLine();
                                 Console.WriteLine("---------------");
-                                initGraph.saveMatrixGraphToFile(path, fileName);
+                                initGraph.saveMatrixGraphToFile(fileName);
                                 break;
                             case 1:
                                 Console.Clear();
-                                Console.Write("Укажите путь до файла: ");
-                                path = Console.ReadLine();
                                 Console.WriteLine("Укажите название файла: ");
                                 fileName = Console.ReadLine();
                                 Console.WriteLine("---------------");
-                                initGraph.saveListEdgesToFile(path, fileName);
+                                initGraph.saveListEdgesToFile(fileName);
                                 break;
                         }
                         break;
@@ -111,9 +123,19 @@ namespace GraphProject
                         initGraph.printMatrix();
                         Console.WriteLine("---------------");
                         Console.WriteLine("Введите номера вершин, которые хотите добавить в граф");
-                        verticesIds = Console.ReadLine().Split(' ').Select(item => Convert.ToInt32(item)).ToArray();
-                        foreach(var vert in verticesIds)
+                        try {
+                            verticesIdsStr = Console.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
+                            verticesIds = verticesIdsStr.Where(item => int.TryParse(item, out tmp)).Select(item => Convert.ToInt32(item)).ToArray();
+                        }
+                        catch
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Некорректный ввод, повторите попытку");
+                        }
+                        
+                        foreach (var vert in verticesIds)
                             initGraph.addVertex(new Vertex(vert));
+
                         break;
 
                     case 4:
@@ -121,12 +143,24 @@ namespace GraphProject
                         initGraph.printMatrix();
                         Console.WriteLine("---------------");
                         Console.WriteLine("Введите номер начальной и конечной вершины ребра");
-                        verticesIdsForEdge = Console.ReadLine().Split(' ').Select(item => Convert.ToInt32(item)).Take(2).ToArray();
-                        Console.Clear();
-                        Console.WriteLine("---------------");
-                        Console.WriteLine("Введите вес ребра");
-                        weight = float.Parse(Console.ReadLine());
-                        initGraph.addEdge(new Vertex(verticesIdsForEdge.First()), new Vertex(verticesIdsForEdge.Last()), weight);
+                        try
+                        {
+                            verticesIdsStr = Console.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
+                            verticesIdsForEdge = verticesIdsStr.Where(item => int.TryParse(item, out tmp)).Select(item => Convert.ToInt32(item)).Take(2).ToArray();
+                            Console.Clear();
+                            Console.WriteLine("---------------");
+                            Console.WriteLine("Введите вес ребра");
+                            weight = float.Parse(Console.ReadLine());
+                            if (weight == 0)
+                                Console.WriteLine("Вес ребра не может равняться 0");
+                            else
+                                initGraph.addEdge(new Vertex(verticesIdsForEdge.First()), new Vertex(verticesIdsForEdge.Last()), weight);
+                        }
+                        catch
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Некорректный ввод, повторите попытку");
+                        }
                         break;
 
                     case 5:
@@ -134,8 +168,17 @@ namespace GraphProject
                         initGraph.printMatrix();
                         Console.WriteLine("---------------");
                         Console.WriteLine("Введите номер начальной и конечной вершины ребра");
-                        verticesIdsForEdge = Console.ReadLine().Split(' ').Select(item => Convert.ToInt32(item)).Take(2).ToArray();
-                        initGraph.removeEdge(new Edge(new Vertex(verticesIdsForEdge.First()), new Vertex(verticesIdsForEdge.Last())));
+                        try
+                        {
+                            verticesIdsStr = Console.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
+                            verticesIdsForEdge = verticesIdsStr.Where(item => int.TryParse(item, out tmp)).Select(item => Convert.ToInt32(item)).Take(2).ToArray();
+                            initGraph.removeEdge(new Edge(new Vertex(verticesIdsForEdge.First()), new Vertex(verticesIdsForEdge.Last())));
+                        }
+                        catch
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Некорректный ввод, повторите попытку");
+                        }
                         break;
 
                     case 6:
@@ -155,10 +198,19 @@ namespace GraphProject
                         initGraph.printMatrix();
                         Console.WriteLine("---------------");
                         Console.WriteLine("Введите номер первой и второй вершины");
-                        verticesIds = Console.ReadLine().Split(' ').Select(item => Convert.ToInt32(item)).Take(2).ToArray();
-                        Console.Clear();
-                        Console.WriteLine("---------------");
-                        Console.WriteLine(initGraph.checkAdjectVertices(new Vertex(verticesIds.First()), new Vertex(verticesIds.Last())) ? "Вершины смежны" : "Вершины не смежны");
+                        try
+                        {
+                            Console.Clear();
+                            Console.WriteLine("---------------");
+                            verticesIdsStr = Console.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
+                            verticesIds = verticesIdsStr.Where(item => int.TryParse(item, out tmp)).Select(item => Convert.ToInt32(item)).Take(2).ToArray();
+                            Console.WriteLine(initGraph.checkAdjectVertices(new Vertex(verticesIds.First()), new Vertex(verticesIds.Last())) ? "Вершины смежны" : "Вершины не смежны");
+                        }
+                        catch
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Некорректный ввод, повторите попытку");
+                        }
                         break;
 
                     case 9:
@@ -166,11 +218,22 @@ namespace GraphProject
                         initGraph.printMatrix();
                         Console.WriteLine("---------------");
                         Console.WriteLine("Введите номер начальной и конечной вершины ребра");
-                        verticesIdsForEdge = Console.ReadLine().Split(' ').Select(item => Convert.ToInt32(item)).Take(2).ToArray();
-                        var edge = initGraph.checkEdgesContaints(new Vertex(verticesIdsForEdge.First()), new Vertex(verticesIdsForEdge.Last())).First();
-                        Console.Clear();
-                        Console.WriteLine("---------------");
-                        Console.WriteLine($"Вес ребра: {edge.getWeight()}");
+                        try
+                        {
+                            Console.Clear();
+                            Console.WriteLine("---------------");
+                            verticesIdsStr = Console.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
+                            verticesIdsForEdge = verticesIdsStr.Where(item => int.TryParse(item, out tmp)).Select(item => Convert.ToInt32(item)).Take(2).ToArray();
+                            var edge = initGraph.checkEdgesContaints(new Vertex(verticesIdsForEdge.First()), new Vertex(verticesIdsForEdge.Last())).First();
+                            Console.Clear();
+                            Console.WriteLine("---------------");
+                            Console.WriteLine($"Вес ребра: {edge.getWeight()}");
+                        }
+                        catch
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Некорректный ввод, повторите попытку");
+                        }
                         break;
 
                     case 10:
@@ -183,6 +246,11 @@ namespace GraphProject
                         Console.Clear();
                         Console.WriteLine("---------------");
                         Console.WriteLine(initGraph.IsEmpty());
+                        break;
+
+                    case 12:
+                        Console.Clear();
+                        initGraph = new Graph();
                         break;
                 }
 

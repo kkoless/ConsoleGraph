@@ -38,10 +38,10 @@ namespace GraphProject
             return matrix;
         }
 
-        public void saveMatrixGraphToFile(string path, string fileName)
+        public void saveMatrixGraphToFile(string fileName)
         {
             var matrix = getMatrix();
-            var newPath = $"{path}/{fileName}.txt" ;
+            var newPath = $"/Users/kirillkolesnikov/Projects/GraphProject/GraphProject/{fileName}.txt" ;
 
             using (StreamWriter w = new StreamWriter(newPath))
             {
@@ -49,18 +49,17 @@ namespace GraphProject
                 for (int row = 0; row < getVerticesCount(); row++)
                 {
                     for (int column = 0; column < getVerticesCount(); column++)
-                    {
                         w.Write(matrix[row, column] + "\t");
-                    }
+
                     w.WriteLine();
                 }
             }
         }
 
-        public void saveListEdgesToFile(string path, string fileName)
+        public void saveListEdgesToFile(string fileName)
         {
             var table = new float[getEdgesCount(), 3];
-            var newPath = $"{path}/{fileName}.txt";
+            var newPath = $"/Users/kirillkolesnikov/Projects/GraphProject/GraphProject/{fileName}.txt";
 
             using (StreamWriter w = new StreamWriter(newPath))
             {
@@ -110,12 +109,19 @@ namespace GraphProject
             var verts = checkVerticesContains(startVertex, endVertex);
 
             Edge editEdge = checkEdgesContaints(verts.First(), verts.Last()).First();
+            Edge reverseEdge = checkEdgesContaints(verts.First(), verts.Last()).Last();
 
             if (edges.Contains(editEdge))
             {
                 edges.Remove(editEdge);
                 verts.First().removeAdjacentVertex(editEdge.getEndVertex());
                 verts.Last().removeAdjacentVertex(editEdge.getStartVertex());
+            }
+            if (reverseEdge != null)
+            {
+                edges.Remove(reverseEdge);
+                verts.First().removeAdjacentVertex(reverseEdge.getEndVertex());
+                verts.Last().removeAdjacentVertex(reverseEdge.getStartVertex());
             }
             else
                 Console.WriteLine("Ошибка! В графе нет данного ребра");
@@ -161,18 +167,18 @@ namespace GraphProject
         {
             Edge[] result = new Edge[2];
             var verts = checkVerticesContains(firstVertex, secondVertex);
-            Edge revertEdge = null, editEdge = null;
+            Edge reverseEdge = null, editEdge = null;
             try
             {
                 editEdge = this.edges.Find(x => x.getStartVertex().getId() == verts.First().getId() && x.getEndVertex().getId() == verts.Last().getId());
-                revertEdge = this.edges.Find(x => x.getStartVertex().getId() == verts.Last().getId() && x.getEndVertex().getId() == verts.First().getId());
+                reverseEdge = this.edges.Find(x => x.getStartVertex().getId() == verts.Last().getId() && x.getEndVertex().getId() == verts.First().getId());
                 result[0] = editEdge;
-                result[1] = revertEdge;
+                result[1] = reverseEdge;
             }
             catch
             {
                 result[0] = editEdge;
-                result[1] = revertEdge;
+                result[1] = reverseEdge;
             }
             return result;
         }
@@ -180,15 +186,16 @@ namespace GraphProject
         //------------------------------------------------------------------
 
         // В виде списка ребер
-        static public Graph loadGraphFromFileOfEdgeList(string path)
+        static public Graph loadGraphFromFileOfEdgeList(string fileName)
         {
             Graph newGraph = new Graph();
-            parseGraphFromFileOfEdgeList(path, newGraph);
+            parseGraphFromFileOfEdgeList(fileName, newGraph);
             return newGraph;
         }
 
-        static private Graph parseGraphFromFileOfEdgeList(string path, Graph editGraph)
+        static private Graph parseGraphFromFileOfEdgeList(string fileName, Graph editGraph)
         {
+            var path = $"/Users/kirillkolesnikov/Projects/GraphProject/GraphProject/{fileName}.txt";
             string[] dataFromFile = File.ReadAllLines(path);
             configureGraphOfEdgeList(dataFromFile, editGraph);
             return editGraph;
@@ -250,15 +257,16 @@ namespace GraphProject
         //------------------------------------------------------------------
 
         // В виде матрицы смежности
-        static public Graph loadGraphFromFileOfAdjacencyMatrix(string path)
+        static public Graph loadGraphFromFileOfAdjacencyMatrix(string fileName)
         {
             Graph newGraph = new Graph();
-            parseGraphFromFileOfAdjacencyMatrix(path, newGraph);
+            parseGraphFromFileOfAdjacencyMatrix(fileName, newGraph);
             return newGraph;
         }
 
-        static private Graph parseGraphFromFileOfAdjacencyMatrix(string path, Graph editGraph)
+        static private Graph parseGraphFromFileOfAdjacencyMatrix(string fileName, Graph editGraph)
         {
+            var path = $"/Users/kirillkolesnikov/Projects/GraphProject/GraphProject/{fileName}.txt";
             var dataFromFile = File.ReadAllLines(path);
             configureGraphOfOfAdjacencyMatrix(dataFromFile, editGraph);
             return editGraph;
@@ -277,9 +285,7 @@ namespace GraphProject
                     float weight = float.Parse(dataFromFile[row + 1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[column]);
                     matrix[row, column] = weight.ToString();
                     if (weight != 0)
-                    {
                         editGraph.addEdge(firstVert, secondVert, weight);
-                    }
                 }
             }
         }
